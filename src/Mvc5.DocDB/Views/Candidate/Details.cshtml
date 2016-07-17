@@ -1,0 +1,115 @@
+﻿@model Mvc5.DocDB.Models.Dating.Candidate
+
+@{
+    ViewBag.Title = "Details";
+}
+
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>&nbsp;</dt>
+        <dd>
+            @if (!String.IsNullOrEmpty(Model.ProfilePicUrl))
+            {
+                <img width="150" src="@String.Format("data:image/jpg;base64,{0}", Model.ProfilePicUrl)" alt="" style="margin-bottom:7px;" />
+            }
+            else
+            {
+                <img width="150" src="~/Content/img/no-photo-available.jpg" alt="" style="margin-bottom:7px;" />
+            }
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.Email)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Email)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.FirstName)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.FirstName)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.LastName)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.LastName)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.PoliticalAffiliation)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.PoliticalAffiliation)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Species)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Species)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Gender)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Gender)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.CurrentLocation)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.CurrentLocation)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Interests)
+    </dt>
+
+    <dd>
+        <span>@ViewBag.Interests</span>
+    </dd>
+
+
+    <dt>
+        @Html.DisplayNameFor(model => model.ShortBio)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.ShortBio)
+    </dd>
+
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Views)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Views)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.Revisions)
+    </dt>
+
+    <dd>
+        @Html.DisplayFor(model => model.Revisions)
+    </dd>
+
+</dl>
+</div>
+<p>
+    @Html.ActionLink("Back", "Index", "Home")
+</p>

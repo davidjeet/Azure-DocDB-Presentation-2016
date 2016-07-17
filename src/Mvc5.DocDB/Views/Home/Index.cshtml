@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+<div class="row">
+    <div class="col-md-6"><img src="~/Content/img/skywalker_sunset.jpg" alt="onely Planetz" /></div>
+
+    <div class="col-md-6">
+        <br />
+        @if (Request.IsAuthenticated)
+        {
+            if (TempData["NewId"] != null)
+            {
+                using (Html.BeginForm("Create", "Candidate", FormMethod.Get))
+                {
+                    <div style="margin-top: 200px;">
+                        <button type="submit" class="btn btn-success btn-lg btn-block">
+                            <span class="glyphicon glyphicon-user"></span> Create a New Profile!
+                        </button>
+                    </div>
+                }
+            }
+            else
+            {
+                <br />
+                using (Html.BeginForm("Upload", "Candidate", FormMethod.Get))
+                {
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Upload profile picture</button>
+                }
+                <br />
+                using (Html.BeginForm("Details", "Candidate", FormMethod.Get))
+                {
+                    <input type="hidden" id="id" name="id" value="@User.Identity.GetUserId()" />
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">View profile</button>
+                }
+                <br />
+                using (Html.BeginForm("Update", "Candidate", FormMethod.Get))
+                {
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Update profile</button>
+                }
+                <br />
+                using (Html.BeginForm("Match", "Candidate", FormMethod.Get))
+                {                  <div style="margin-top: 80px;">
+                    <button type="submit" class="btn btn-success btn-lg btn-block">
+                        <span class="glyphicon glyphicon-heart"></span>  Match Me!
+                    </button>
+
+                </div>
+                }
+            }
+        }
+    </div>
+
+</div>

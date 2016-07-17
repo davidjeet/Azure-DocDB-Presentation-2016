@@ -1,0 +1,18 @@
+﻿@using Mvc5.DocDB.Infrastructure.Alerts
+
+@if (TempData.GetAlerts().Count > 0)
+{
+    <div class="container alert-container">
+        @foreach(var alert in TempData.GetAlerts())
+        {
+            <div class="alert @alert.AlertClass alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                    &times;
+                </button>
+                @alert.Message
+            </div>
+        }
+
+    </div>
+}
+    

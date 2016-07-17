@@ -1,0 +1,291 @@
+--------------------
+-- Scalar Queries --
+--------------------
+
+-- Basic expressions
+SELECT "Hello"
+SELECT "Hello" AS word
+SELECT VALUE "Hello"
+SELECT "Hello", "World"
+SELECT "Hello" AS word1, "World" AS word2
+
+-- Shaping nested arrays and embedded objects
+SELECT ["Hello", "World"] AS words
+SELECT { "word1": "Hello", "word2": "World" } as words
+SELECT
+ { "words1":
+     ["Hello", "World"],
+   "words2":
+     ["How", "Are", "You?"]
+ } AS allWords
+
+-- Operators
+SELECT 
+	 15 * ((2 + 11 % 7) - 2) / 2 AS Math1,
+	 15 * ((2 + 11 % 7) - 2) / 2.1 AS Math2,
+	 ("hot" = "cold" AND "up" = "down" OR 1 = 1) AS Logical1,
+	 ("hot" = "cold" AND ("up" = "down" OR 1 = 1)) AS Logical2,
+	 (2 > 3 ? "higher" : "lower or equal") AS Ternary,
+	 (undefined ?? undefined ?? "third") AS Coalesce1,
+	 (undefined ?? "second" ?? "third") AS Coalesce2,
+	 ("first" ?? undefined ?? "third") AS Coalesce3,
+	 "Hello" || " " || "World" AS StringConcat
+
+-- Math
+SELECT
+	ROUND(3.4) AS MathRound1,
+	ROUND(3.5) AS MathRound2,
+	CEILING(3.4) AS MathCeiling1,
+	CEILING(3.5) AS MathCeiling2,
+	FLOOR(3.4) AS MathFloor1,
+	FLOOR(3.5) AS MathFloor2,
+	ABS(-5) AS MathAbs1,
+	ABS(5) AS MathAbs2,
+	SIN(28) AS MathSin,
+	COS(28) AS MathCos,
+	TAN(28) AS MathTan,
+	LOG(16) AS MathLog,
+	PI() AS MathPi
+
+-- Type checking
+SELECT
+	IS_ARRAY(6) AS IsArray1,
+	IS_ARRAY([6]) AS IsArray2,
+	IS_BOOL(6) AS IsBool1,
+	IS_BOOL(false) AS IsBool2,
+	IS_NULL(6) AS IsNull1,
+	IS_NULL(null) AS IsNull2,
+	IS_OBJECT("hello") AS IsObject1,
+	IS_OBJECT({"word": "hello"}) AS IsObject2
+
+-- String
+SELECT
+	CONCAT("There are ", "2", " items") AS StrConcat,
+	CONTAINS("Abcdef", "cde") AS StrContains,
+	STARTSWITH("Abcdef", "Ab") AS StrStartsWith,
+	ENDSWITH("Abcdef", "cdef") AS StrEndsWith,
+	INDEX_OF("Abcdef", "de") AS StrIndexOf1,
+	INDEX_OF("Abcdef", "df") AS StrIndexOf2,
+	LEFT("Abcdef", 3) AS StrLeft,
+	RIGHT("Abcdef", 3) AS StrRight,
+	SUBSTRING("Abcdef", 2, 3) AS StrSubstring,
+	LENGTH("Abcdef") AS StrLength,
+	LOWER("Abcdef") AS StrLower,
+	UPPER("Abcdef") AS StrUpper
+
+-- Array
+SELECT
+	ARRAY_CONCAT(["A", "B"], ["1", "2"], ["#"]) AS ArrConcat,
+	ARRAY_CONTAINS(["1A", "1B", "1C"], "1B") AS ArrContains,
+	ARRAY_LENGTH(["1A", "1B", "1C"]) AS ArrLength,
+	ARRAY_SLICE(["1A", "1B", "1C", "1D"], 1, 2) AS ArrSlice
+
+----------------------
+-- Families Collection
+----------------------
+
+-- FROM clause
+
+-- Can just use 'c' for collection
+SELECT * FROM c
+
+-- Get city and state
+SELECT c.location.city, c.location.state
+ FROM c
+
+-- Can use collection name
+SELECT Families.location.city, Families.location.state
+ FROM Families
+
+-- Can shorten with another alias
+SELECT f.location.city, f.location.state
+ FROM Families AS f
+
+-- Reduce source to subset of children (per family)
+SELECT *
+ FROM c.children
+ 
+-- With reduced source, can't query outside the subset
+SELECT *
+ FROM c.children
+ WHERE c.location.state = 'NY'
+  
+-- All properties need to be in scope with FROM to be queryable
+SELECT c.children
+ FROM c
+ WHERE c.location.state = 'NY'
+
+-- FROM with IN (flatten documents)
+
+SELECT *
+ FROM ch IN c.children
+
+SELECT
+	ch.givenName ?? ch.firstName AS childName,
+	ch.grade,
+	ARRAY_LENGTH(ch.pets) ?? 0 AS numberOfPets,
+	ch.pets
+ FROM ch IN c.children
+
+-- FROM with JOIN
+
+-- Duplicate parent-level info for each child
+SELECT
+	f.id,
+	f.location.city,
+	f.location.state,
+	ch.givenName ?? ch.firstName AS childName,
+	ARRAY_LENGTH(ch.pets) ?? 0 AS numberOfPets,
+	ch.pets
+ FROM c AS f
+ JOIN ch IN f.children
+
+-- Double JOIN to flatten children and pets
+SELECT
+	f.id,
+	ch.givenName ?? ch.firstName AS childName,
+	p.givenName AS petName,
+	p.type
+ FROM c AS f
+ JOIN ch IN f.children
+ JOIN p IN ch.pets
+
+-- Flatten to string array of pet names using VALUE
+SELECT p.givenName 
+ FROM c AS f
+ JOIN ch IN f.children 
+ JOIN p IN ch.pets
+
+SELECT VALUE p.givenName 
+ FROM c AS f
+ JOIN ch IN f.children 
+ JOIN p IN ch.pets
+
+-- Projections
+
+-- Construct childAndGrade object with child name and grade
+SELECT
+ {
+  "child": ch.givenName ?? ch.firstName,
+  "grade": ch.grade
+ } AS childAndGrade
+ FROM ch IN c.children
+
+-- ...or as array of objects with child name and grade
+SELECT
+ [
+  ch.givenName ?? ch.firstName,
+  ch.grade
+ ] AS childAndGrade
+ FROM ch IN c.children
+
+-- ...or as array of values with child name and grade
+SELECT VALUE
+ [
+  ch.givenName ?? ch.firstName,
+  ch.grade
+ ]
+ FROM ch IN c.children
+
+------------------------
+-- mystore Collection --
+------------------------
+
+-- Get all documents
+SELECT * FROM c
+
+-- Get all names and IDs
+SELECT c.id, c.name
+ FROM c
+
+-- Get all names
+SELECT c.name
+ FROM c
+
+-- Get all names as a flat string array
+SELECT VALUE c.name
+ FROM c
+
+-- String concatenation using ||
+SELECT VALUE c.name || ', ' || c.address.countryRegionName
+ FROM c
+
+-- Range queries
+SELECT VALUE c.name
+ FROM c
+ WHERE c.name >= 'A' AND c.name <= 'K'
+
+SELECT VALUE c.name
+ FROM c
+ WHERE c.name BETWEEN 'A' AND 'K'
+
+SELECT VALUE c.name
+ FROM c
+ WHERE c.name BETWEEN 'L' AND 'Z'
+
+-- Sort using ORDER BY
+SELECT c.id, c.name
+ FROM c
+ ORDER BY c.name
+
+SELECT c.id, c.name
+ FROM c
+ ORDER BY c.name DESC
+
+-- Flatten fields across embedded documents
+SELECT
+	c.id,
+	c.name,
+	c.address.location.city,
+	c.address.countryRegionName
+ FROM c
+
+-- Get all city and state names
+SELECT
+	c.address.location.city,
+	c.address.location.stateProvinceName
+ FROM c
+
+-- Simpler by reducing subset
+SELECT *
+ FROM c.address.location
+
+-- Can't filter on subset without an alias
+SELECT *
+ FROM c.address.location
+ WHERE c.address.location.stateProvinceName = 'Florida'
+
+-- Alias the subset to filter within the subset
+SELECT *
+ FROM c.address.location AS l
+ WHERE l.stateProvinceName IN ('Florida', 'Illinois')
+
+-- Boolean expression property (on = comparison)
+SELECT
+	c.name,
+	c.address.location.city,
+	c.address.location.stateProvinceName,
+	c.address.location.city = 
+	 c.address.location.stateProvinceName AS isSameCityState
+ FROM c
+
+-- Ternary (?) operator
+SELECT
+	c.name,
+	c.address.countryRegionName AS region,
+	(c.address.countryRegionName = "United States" ?
+	  "USD" : "CAD") AS currency
+ FROM c
+ WHERE c.address.countryRegionName
+  IN ("United States", "Canada")
+
+-- Nested ternary (?) operator
+SELECT
+	c.name,
+	c.address.countryRegionName AS region,
+	(c.address.countryRegionName = "United States" ?
+	  "USD" : (c.address.countryRegionName = "Canada" ?
+	  "CAD" : "EUR")) AS currency
+ FROM c
+ WHERE c.address.countryRegionName
+  IN ("United States", "Canada", "France")
